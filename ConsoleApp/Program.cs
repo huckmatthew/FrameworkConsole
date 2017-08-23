@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
-using Demo.ApplicationInsigts;
-using Demo.ApplicationInsigts.Configure;
-using Demo.ApplicationInsigts.Interface;
+using Demo.ApplicationInsights;
+using Demo.ApplicationInsights.Configure;
+using Demo.ApplicationInsights.Interface;
 
-namespace ConsoleApp452
+namespace ConsoleApp
 {
     class Program
     {
@@ -17,25 +17,28 @@ namespace ConsoleApp452
         static void Main(string[] args)
         {
             ConfigureAutoFac();
-            ConfigureApplicationInsights();
+            ConfigureMyApplicationInsights();
 
             var logger = ApplicationInsightsAppLogger.GetLogger();
 
-            logger.LogDebug("Application Started", "", null, null);
+            logger.LogDebug("Application Started", "Startup", new { badthing = true }, null);
 
             Console.WriteLine("Done!");
             Console.ReadLine();
+            logger.LogDebug("Application Stopped", "Stopped", null, null);
+            logger.Flush();
         }
 
-        private static void ConfigureApplicationInsights()
+        private static void ConfigureMyApplicationInsights()
         {
             var configsettings = new ApplicationInsightsConfig();
             configsettings.ApplicationName = "DemoApp1";
             configsettings.Enabled = bool.Parse(ConfigurationManager.AppSettings["Enabled"]);
+            configsettings.LoggingLevel = (LogLevel) Enum.Parse(typeof(LogLevel),  ConfigurationManager.AppSettings["LogLevel"]);
             configsettings.InstrumentationKey = ConfigurationManager.AppSettings["InstrumentationKey"];
             configsettings.Environment = ConfigurationManager.AppSettings["Environment"];
 
-            Demo.ApplicationInsigts.Configure.ConfigureApplicationInsights.Config(configsettings);
+            ConfigureApplicationInsights.Config(configsettings);
         }
 
         private static void ConfigureAutoFac()
